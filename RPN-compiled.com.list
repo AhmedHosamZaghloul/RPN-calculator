@@ -1,0 +1,817 @@
+EMU8086 GENERATED LISTING. MACHINE CODE <- SOURCE.
+ 
+RPN-compiled.com -- emu8086 assembler version: 4.08  
+ 
+[ 5/9/2016  --  12:46:34 PM ] 
+ 
+===================================================================================================
+[LINE]     LOC: MACHINE CODE                          SOURCE
+===================================================================================================
+ 
+[   1]        :                                       ; This RPN calculator code consists of 3 main parts, in a large loop:
+[   2]        :                                       ; 1) Input loop 2> Arithmetic Operations 3) Display output
+[   3]        :                                       
+[   4]        :                                       ; 1) Input loop
+[   5]        :                                       ; The input loop continiously checks for inputs, if it detects a button press
+[   6]        :                                       ; and stores a code representing it in ah, once it finds nothing pressed, it
+[   7]        :                                       ; will check if ah != 0, if so, it will set the al register as ah, and continue
+[   8]        :                                       ; to the arithmetic step, otherwise, it will just loop, waiting for inputs
+[   9]        :                                       
+[  10]        :                                       ;define flags at base of higher 1/2 of segment
+[  11]        :                                       org 8000h
+[  12]    0000: ??                                    flag db 0
+[  13]    0001: ??                                    scount db 0
+[  14]        :                                       
+[  15]        :                                       ;Define code at 100h
+[  16]        :                                       org 100h
+[  17]    8100: ??                                    mov al, 0
+[  18]    8102: ??                                    out 020h, al
+[  19]        :                                       
+[  20]        :                                       ;Set 2 initial elements in the stack
+[  21]    8104: ??                                    push 0
+[  22]    8106: ??                                    push 0
+[  23]    8108: ??                                    jmp display
+[  24]        :                                       
+[  25]        :                                       ;Start point of the program
+[  26]    810B:                                       redo:
+[  27]    810B: ??                                    mov ax, 0
+[  28]    810E: ??                                    mov dx, 0
+[  29]    8111: ??                                    clc
+[  30]        :                                       
+[  31]        :                                       ;Start of the input loop
+[  32]        :                                       
+[  33]    8112:                                       start:
+[  34]        :                                       
+[  35]        :                                       ;Check every line for inputs, if one is pressed, it will jump to that line
+[  36]        :                                       ;Otherwise, it will jump to next if ah != 0, or loop if ah = 0
+[  37]        :                                       
+[  38]    8112: ??                                    in al, 010h
+[  39]    8114: ??                                    cmp al, 0
+[  40]    8116: ??                                    jne line1
+[  41]        :                                       
+[  42]    8118: ??                                    in al, 012h
+[  43]    811A: ??                                    cmp al, 0
+[  44]    811C: ??                                    jne line2
+[  45]        :                                       
+[  46]    811E: ??                                    in al, 014h
+[  47]    8120: ??                                    cmp al, 0
+[  48]    8122: ??                                    jne line3
+[  49]        :                                       
+[  50]    8124: ??                                    in al, 016h
+[  51]    8126: ??                                    cmp al, 0
+[  52]    8128: ??                                    jne line4
+[  53]        :                                       
+[  54]    812A: ??                                    in al, 018h
+[  55]    812C: ??                                    cmp al, 0
+[  56]    812E: ??                                    jne line5
+[  57]        :                                       
+[  58]    8130: ??                                    cmp ah, 0
+[  59]    8133: ??                                    jne next
+[  60]    8135: ??                                    jmp start
+[  61]        :                                       
+[  62]        :                                       ;For every line (Column), there is a code added to the most significant 3 bits,
+[  63]        :                                       ;the leastSignificant bits ar used to inidcate which column was presses
+[  64]        :                                       
+[  65]    8137:                                       line1:
+[  66]    8137: ??                                    add al, 100000b
+[  67]    8139: ??                                    mov ah, al
+[  68]    813B: ??                                    jmp start
+[  69]        :                                       
+[  70]    813D:                                       line2:
+[  71]    813D: ??                                    add al, 1000000b
+[  72]    813F: ??                                    mov ah, al
+[  73]    8141: ??                                    jmp start
+[  74]        :                                       
+[  75]    8143:                                       line3:
+[  76]    8143: ??                                    add al, 1100000b
+[  77]    8145: ??                                    mov ah, al
+[  78]    8147: ??                                    jmp start
+[  79]        :                                       
+[  80]    8149:                                       line4:
+[  81]    8149: ??                                    add al, 10000000b
+[  82]    814B: ??                                    mov ah, al
+[  83]    814D: ??                                    jmp start
+[  84]        :                                       
+[  85]    814F:                                       line5:
+[  86]    814F: ??                                    add al, 10100000b
+[  87]    8151: ??                                    mov ah, al
+[  88]    8153: ??                                    jmp start
+[  89]        :                                       
+[  90]        :                                       ;Clear ah, and check the code, move to the appropriate location in the code
+[  91]        :                                       ;according to the input
+[  92]        :                                       
+[  93]    8155:                                       next:
+[  94]    8155: ??                                    mov al, ah
+[  95]    8157: ??                                    mov ah, 0
+[  96]    8159: ??                                    cmp al, 100001b
+[  97]    815B: ??                                    je zero
+[  98]    8160: ??                                    cmp al, 100010b
+[  99]    8162: ??                                    je one
+[ 100]    8167: ??                                    cmp al, 100100b
+[ 101]    8169: ??                                    je two
+[ 102]    816E: ??                                    cmp al, 101000b
+[ 103]    8170: ??                                    je three
+[ 104]    8175: ??                                    cmp al, 110000b
+[ 105]    8177: ??                                    je four
+[ 106]    817C: ??                                    cmp al, 1000001b
+[ 107]    817E: ??                                    je five
+[ 108]    8183: ??                                    cmp al, 1000010b
+[ 109]    8185: ??                                    je six
+[ 110]    818A: ??                                    cmp al, 1000100b
+[ 111]    818C: ??                                    je seven
+[ 112]    8191: ??                                    cmp al, 1001000b
+[ 113]    8193: ??                                    je eight
+[ 114]    8198: ??                                    cmp al, 1010000b
+[ 115]    819A: ??                                    je nine
+[ 116]    819F: ??                                    cmp al, 1100001b
+[ 117]    81A1: ??                                    je plus
+[ 118]    81A6: ??                                    cmp al, 1100010b
+[ 119]    81A8: ??                                    je minus
+[ 120]    81AD: ??                                    cmp al, 1100100b
+[ 121]    81AF: ??                                    je times
+[ 122]    81B4: ??                                    cmp al, 1101000b
+[ 123]    81B6: ??                                    je divide
+[ 124]    81BB: ??                                    cmp al, 1110000b
+[ 125]    81BD: ??                                    je enter
+[ 126]        :                                       ;cmp al, 10000001b
+[ 127]        :                                       ;je square
+[ 128]        :                                       ;cmp al, 10000010b
+[ 129]        :                                       ;je root
+[ 130]        :                                       ;cmp al, 10000100b
+[ 131]        :                                       ;je remainder
+[ 132]        :                                       ;cmp al, 10001000b
+[ 133]        :                                       ;je nPr
+[ 134]    81C2: ??                                    cmp al, 10000001b
+[ 135]    81C4: ??                                    je root
+[ 136]    81C9: ??                                    cmp al, 10000010b
+[ 137]    81CB: ??                                    je remainder
+[ 138]    81D0: ??                                    cmp al, 10000100b
+[ 139]    81D2: ??                                    je nPr
+[ 140]    81D7: ??                                    cmp al, 10001000b
+[ 141]    81D9: ??                                    je nCr
+[ 142]    81DE: ??                                    cmp al, 10010000b
+[ 143]    81E0: ??                                    je factorial
+[ 144]    81E5: ??                                    cmp al, 10100001b
+[ 145]    81E7: ??                                    je twoexp
+[ 146]    81EC: ??                                    cmp al, 10100010b
+[ 147]    81EE: ??                                    je exp
+[ 148]    81F3: ??                                    cmp al, 10100100b
+[ 149]    81F5: ??                                    je back
+[ 150]    81FA: ??                                    cmp al, 10101000b
+[ 151]    81FC: ??                                    je popmem
+[ 152]    8201: ??                                    cmp al, 10110000b
+[ 153]    8203: ??                                    je clear
+[ 154]        :                                       
+[ 155]        :                                       ; 2) Arithmetic Operations
+[ 156]        :                                       
+[ 157]    8208:                                       zero:
+[ 158]        :                                       ;zero is entered
+[ 159]    8208: ??                                    cmp flag , 1   ;checking if a number has been pressed before
+[ 160]    820D: ??                                    je  skip0
+[ 161]    820F: ??                                    PUSH 0
+[ 162]    8211: ??                                    inc scount
+[ 163]    8215: ??                                    mov flag,1
+[ 164]    821A:                                       skip0:
+[ 165]    821A: ??                                    POP ax
+[ 166]    821B: ??                                    mov bx, 10
+[ 167]    821E: ??                                    mul bx
+[ 168]    8220: ??                                    add ax, 0
+[ 169]    8223: ??                                    cmp dx, 0
+[ 170]    8226: ??                                    je of0
+[ 171]    8228: ??                                    stc
+[ 172]    8229:                                       of0:
+[ 173]    8229: ??                                    PUSH ax
+[ 174]    822A: ??                                    jmp display
+[ 175]        :                                       
+[ 176]    822D:                                       one:
+[ 177]        :                                       ;one is entered
+[ 178]    822D: ??                                    cmp flag , 1   ;checking if a number has been pressed before
+[ 179]    8232: ??                                    je  skip1
+[ 180]    8234: ??                                    PUSH 0
+[ 181]    8236: ??                                    inc scount
+[ 182]    823A: ??                                    mov flag,1
+[ 183]    823F:                                       skip1:
+[ 184]    823F: ??                                    POP ax
+[ 185]    8240: ??                                    mov bx, 10
+[ 186]    8243: ??                                    mul bx
+[ 187]    8245: ??                                    add ax,1
+[ 188]    8248: ??                                    cmp dx, 0
+[ 189]    824B: ??                                    je of1
+[ 190]    824D: ??                                    stc
+[ 191]    824E:                                       of1:
+[ 192]    824E: ??                                    PUSH ax
+[ 193]        :                                       
+[ 194]    824F: ??                                    jmp display
+[ 195]        :                                       
+[ 196]    8252:                                       two:
+[ 197]        :                                       ;two is enered
+[ 198]    8252: ??                                    cmp flag , 1    ;checking if a number has been pressed before
+[ 199]    8257: ??                                    je  skip2
+[ 200]    8259: ??                                    PUSH 0
+[ 201]    825B: ??                                    inc scount
+[ 202]    825F: ??                                    mov flag,1
+[ 203]    8264:                                       skip2:
+[ 204]    8264: ??                                    POP ax
+[ 205]    8265: ??                                    mov bx, 10
+[ 206]    8268: ??                                    mul bx
+[ 207]    826A: ??                                    add ax,2
+[ 208]    826D: ??                                    cmp dx, 0
+[ 209]    8270: ??                                    je of2
+[ 210]    8272: ??                                    stc
+[ 211]    8273:                                       of2:
+[ 212]    8273: ??                                    PUSH ax
+[ 213]        :                                       
+[ 214]    8274: ??                                    jmp display
+[ 215]        :                                       
+[ 216]    8277:                                       three:
+[ 217]        :                                       ;three is entered
+[ 218]    8277: ??                                    cmp flag , 1     ;checking if a number has been pressed before
+[ 219]    827C: ??                                    je  skip3
+[ 220]    827E: ??                                    PUSH 0
+[ 221]    8280: ??                                    inc scount
+[ 222]    8284: ??                                    mov flag,1
+[ 223]    8289:                                       skip3:
+[ 224]    8289: ??                                    POP ax
+[ 225]    828A: ??                                    mov bx, 10
+[ 226]    828D: ??                                    mul bx
+[ 227]    828F: ??                                    add ax,3
+[ 228]    8292: ??                                    cmp dx, 0
+[ 229]    8295: ??                                    je of3
+[ 230]    8297: ??                                    stc
+[ 231]    8298:                                       of3:
+[ 232]    8298: ??                                    PUSH ax
+[ 233]        :                                       
+[ 234]    8299: ??                                    jmp display
+[ 235]        :                                       
+[ 236]    829C:                                       four:
+[ 237]        :                                       ;four is entered
+[ 238]    829C: ??                                    cmp flag , 1     ;checking if a number has been pressed before
+[ 239]    82A1: ??                                    je  skip4
+[ 240]    82A3: ??                                    PUSH 0
+[ 241]    82A5: ??                                    inc scount
+[ 242]    82A9: ??                                    mov flag,1
+[ 243]    82AE:                                       skip4:
+[ 244]    82AE: ??                                    POP ax
+[ 245]    82AF: ??                                    mov bx, 10
+[ 246]    82B2: ??                                    mul bx
+[ 247]    82B4: ??                                    add ax,4
+[ 248]    82B7: ??                                    cmp dx, 0
+[ 249]    82BA: ??                                    je of4
+[ 250]    82BC: ??                                    stc
+[ 251]    82BD:                                       of4:
+[ 252]    82BD: ??                                    PUSH ax
+[ 253]        :                                       
+[ 254]    82BE: ??                                    jmp display
+[ 255]        :                                       
+[ 256]    82C1:                                       five:
+[ 257]        :                                       ;five is entered
+[ 258]    82C1: ??                                    cmp flag , 1    ;checking if a number has been pressed before
+[ 259]    82C6: ??                                    je  skip5
+[ 260]    82C8: ??                                    PUSH 0
+[ 261]    82CA: ??                                    inc scount
+[ 262]    82CE: ??                                    mov flag,1
+[ 263]    82D3:                                       skip5:
+[ 264]    82D3: ??                                    POP ax
+[ 265]    82D4: ??                                    mov bx, 10
+[ 266]    82D7: ??                                    mul bx
+[ 267]    82D9: ??                                    add ax,5
+[ 268]    82DC: ??                                    cmp dx, 0
+[ 269]    82DF: ??                                    je of5
+[ 270]    82E1: ??                                    stc
+[ 271]    82E2:                                       of5:
+[ 272]    82E2: ??                                    PUSH ax
+[ 273]        :                                       
+[ 274]    82E3: ??                                    jmp display
+[ 275]        :                                       
+[ 276]    82E6:                                       six:
+[ 277]        :                                       ;six is entered
+[ 278]    82E6: ??                                    cmp flag , 1    ;checking if a number has been pressed before
+[ 279]    82EB: ??                                    je  skip6
+[ 280]    82ED: ??                                    PUSH 0
+[ 281]    82EF: ??                                    inc scount
+[ 282]    82F3: ??                                    mov flag,1
+[ 283]    82F8:                                       skip6:
+[ 284]    82F8: ??                                    POP ax
+[ 285]    82F9: ??                                    mov bx, 10
+[ 286]    82FC: ??                                    mul bx
+[ 287]    82FE: ??                                    add ax,6
+[ 288]    8301: ??                                    cmp dx, 0
+[ 289]    8304: ??                                    je of6
+[ 290]    8306: ??                                    stc
+[ 291]    8307:                                       of6:
+[ 292]    8307: ??                                    PUSH ax
+[ 293]        :                                       
+[ 294]    8308: ??                                    jmp display
+[ 295]        :                                       
+[ 296]    830B:                                       seven:
+[ 297]        :                                       ;seven is entered
+[ 298]    830B: ??                                    cmp flag , 1    ;checking if a number has been pressed before
+[ 299]    8310: ??                                    je  skip7
+[ 300]    8312: ??                                    PUSH 0
+[ 301]    8314: ??                                    inc scount
+[ 302]    8318: ??                                    mov flag,1
+[ 303]    831D:                                       skip7:
+[ 304]        :                                       
+[ 305]    831D: ??                                    POP ax
+[ 306]    831E: ??                                    mov bx, 10
+[ 307]    8321: ??                                    mul bx
+[ 308]    8323: ??                                    add ax,7
+[ 309]    8326: ??                                    cmp dx, 0
+[ 310]    8329: ??                                    je of7
+[ 311]    832B: ??                                    stc
+[ 312]    832C:                                       of7:
+[ 313]    832C: ??                                    PUSH ax
+[ 314]        :                                       
+[ 315]    832D: ??                                    jmp display
+[ 316]        :                                       
+[ 317]    8330:                                       eight:
+[ 318]        :                                       ;eight is entered
+[ 319]    8330: ??                                    cmp flag , 1    ;checking if a number has been pressed before
+[ 320]    8335: ??                                    je  skip8
+[ 321]    8337: ??                                    PUSH 0
+[ 322]    8339: ??                                    inc scount
+[ 323]    833D: ??                                    mov flag,1
+[ 324]    8342:                                       skip8:
+[ 325]    8342: ??                                    POP ax
+[ 326]    8343: ??                                    mov bx, 10
+[ 327]    8346: ??                                    mul bx
+[ 328]    8348: ??                                    add ax,8
+[ 329]    834B: ??                                    cmp dx, 0
+[ 330]    834E: ??                                    je of8
+[ 331]    8350: ??                                    stc
+[ 332]    8351:                                       of8:
+[ 333]    8351: ??                                    PUSH ax
+[ 334]        :                                       
+[ 335]    8352: ??                                    jmp display
+[ 336]        :                                       
+[ 337]    8355:                                       nine:
+[ 338]        :                                       ;nine is entered
+[ 339]    8355: ??                                    cmp flag , 1    ;checking if a number has been pressed before
+[ 340]    835A: ??                                    je  skip9
+[ 341]    835C: ??                                    PUSH 0
+[ 342]    835E: ??                                    inc scount
+[ 343]    8362: ??                                    mov flag,1
+[ 344]    8367:                                       skip9:
+[ 345]    8367: ??                                    POP ax
+[ 346]    8368: ??                                    mov bx, 10
+[ 347]    836B: ??                                    mul bx
+[ 348]    836D: ??                                    add ax,9
+[ 349]    8370: ??                                    cmp dx, 0
+[ 350]    8373: ??                                    je of9
+[ 351]    8375: ??                                    stc
+[ 352]    8376:                                       of9:
+[ 353]    8376: ??                                    PUSH ax
+[ 354]        :                                       
+[ 355]    8377: ??                                    jmp display
+[ 356]        :                                       
+[ 357]    837A:                                       plus:
+[ 358]        :                                       ;plus is pressed
+[ 359]    837A: ??                                    cmp scount, 1
+[ 360]    837F: ??                                    je displayn
+[ 361]    8384: ??                                    mov flag,0
+[ 362]    8389: ??                                    POP ax
+[ 363]    838A: ??                                    POP bx
+[ 364]    838B: ??                                    add ax , bx
+[ 365]    838D: ??                                    PUSH ax
+[ 366]    838E: ??                                    dec scount
+[ 367]    8392: ??                                    jmp display
+[ 368]        :                                       
+[ 369]    8395:                                       minus:
+[ 370]        :                                       ;mius is pressed
+[ 371]    8395: ??                                    cmp scount, 1
+[ 372]    839A: ??                                    je displayn
+[ 373]    839F: ??                                    mov flag,0
+[ 374]    83A4: ??                                    POP bx
+[ 375]    83A5: ??                                    POP ax
+[ 376]    83A6: ??                                    sub ax, bx
+[ 377]    83A8: ??                                    PUSH ax
+[ 378]    83A9: ??                                    dec scount
+[ 379]    83AD: ??                                    jmp display
+[ 380]        :                                       
+[ 381]    83B0:                                       times:
+[ 382]        :                                       ;times is pressed
+[ 383]    83B0: ??                                    cmp scount, 1
+[ 384]    83B5: ??                                    je displayn
+[ 385]    83BA: ??                                    mov flag,0
+[ 386]    83BF: ??                                    POP ax
+[ 387]    83C0: ??                                    POP bx
+[ 388]    83C1: ??                                    mov dx,0
+[ 389]    83C4: ??                                    mul bx
+[ 390]    83C6: ??                                    cmp dx,0
+[ 391]    83C9: ??                                    je skiptimes
+[ 392]    83CB: ??                                    stc
+[ 393]    83CC:                                       skiptimes:
+[ 394]    83CC: ??                                    PUSH ax
+[ 395]    83CD: ??                                    dec scount
+[ 396]    83D1: ??                                    jmp display
+[ 397]        :                                       
+[ 398]    83D4:                                       divide:
+[ 399]        :                                       ;divide is pressed
+[ 400]    83D4: ??                                    cmp scount, 1
+[ 401]    83D9: ??                                    je displayn
+[ 402]    83DE: ??                                    mov flag,0
+[ 403]    83E3: ??                                    mov dx, 0
+[ 404]    83E6: ??                                    POP bx
+[ 405]    83E7: ??                                    POP ax
+[ 406]    83E8: ??                                    div bx
+[ 407]    83EA: ??                                    dec scount
+[ 408]    83EE: ??                                    cmp dx, 0
+[ 409]    83F1: ??                                    jnz approx
+[ 410]    83F3: ??                                    PUSH ax
+[ 411]    83F4: ??                                    jmp display
+[ 412]        :                                       
+[ 413]    83F7:                                       approx:
+[ 414]        :                                       ; what to do if we have a floating number
+[ 415]        :                                       ; if remainder is bigger than half bx then add one
+[ 416]    83F7: ??                                    mov di, 1
+[ 417]    83FA: ??                                    and di, bx
+[ 418]    83FC: ??                                    SHR bx,1
+[ 419]    83FE: ??                                    add bx, di
+[ 420]    8400: ??                                    cmp bx,dx       ; ax holds half the value of bx
+[ 421]    8402: ??                                    jbe skipapprox
+[ 422]    8404: ??                                    PUSH ax
+[ 423]    8405: ??                                    jmp display
+[ 424]    8408:                                       skipapprox:
+[ 425]    8408: ??                                    add ax,1
+[ 426]    840B: ??                                    PUSH ax
+[ 427]    840C: ??                                    jmp display
+[ 428]        :                                       
+[ 429]    840F:                                       square:    ;calculate square of number
+[ 430]        :                                       ;square is pressed
+[ 431]    840F: ??                                    mov flag,0
+[ 432]    8414: ??                                    POP ax
+[ 433]    8415: ??                                    mul ax
+[ 434]    8417: ??                                    cmp dx,0
+[ 435]    841A: ??                                    je skipsquare
+[ 436]    841C: ??                                    stc
+[ 437]    841D:                                       skipsquare:
+[ 438]    841D: ??                                    PUSH ax
+[ 439]    841E: ??                                    jmp display
+[ 440]        :                                       
+[ 441]    8421:                                       root:      ;calculate root of number
+[ 442]        :                                       ;root is pressed
+[ 443]    8421: ??                                    mov flag,0
+[ 444]    8426: ??                                    pop ax
+[ 445]    8427: ??                                    mov dx, 0
+[ 446]    842A: ??                                    mov bx, ax
+[ 447]    842C: ??                                    mov cx, 01FFh
+[ 448]    842F:                                       froot_loop:
+[ 449]    842F: ??                                    mov si, ax
+[ 450]    8431: ??                                    mov ax, bx
+[ 451]    8433: ??                                    div si
+[ 452]    8435: ??                                    mov dx, 0
+[ 453]    8438: ??                                    add ax, si
+[ 454]    843A: ??                                    mov di, 2
+[ 455]    843D: ??                                    div di
+[ 456]    843F: ??                                    mov dx, 0
+[ 457]        :                                       ;cmp si, ax
+[ 458]        :                                       ;je approxroot
+[ 459]    8442: ??                                    loop froot_loop
+[ 460]    8444:                                       approxroot:
+[ 461]    8444: ??                                    mov si, ax
+[ 462]    8446: ??                                    mul ax
+[ 463]    8448: ??                                    mov dx, 0
+[ 464]    844B: ??                                    mov di, bx
+[ 465]    844D: ??                                    sub di, ax
+[ 466]    844F: ??                                    mov ax, si
+[ 467]    8451: ??                                    add ax, 1
+[ 468]    8454: ??                                    mul ax
+[ 469]    8456: ??                                    mov dx, bx
+[ 470]    8458: ??                                    sub ax, dx
+[ 471]    845A: ??                                    mov dx, ax
+[ 472]    845C: ??                                    add si, 1
+[ 473]        :                                       ;cmp dx, di
+[ 474]        :                                       ;jc rootdone
+[ 475]    845F: ??                                    sub dx, di
+[ 476]    8461: ??                                    mov ax, dx
+[ 477]    8463: ??                                    cmp dx, 32767
+[ 478]        :                                       ;jc rootdone
+[ 479]        :                                       ;add si, 1
+[ 480]    8467: ??                                    jnc rootdone
+[ 481]    8469: ??                                    sub si, 1
+[ 482]    846C:                                       rootdone:
+[ 483]    846C: ??                                    mov ax, si
+[ 484]    846E: ??                                    push ax
+[ 485]    846F: ??                                    mov flag,0
+[ 486]        :                                       
+[ 487]    8474: ??                                    jmp display
+[ 488]        :                                       
+[ 489]    8477:                                       remainder: ;calculate the remainder of dividing two numbers
+[ 490]        :                                       ;mod/remainder is pressed
+[ 491]    8477: ??                                    cmp scount, 1
+[ 492]    847C: ??                                    je displayn
+[ 493]    8481: ??                                    mov flag,0
+[ 494]    8486: ??                                    POP bx
+[ 495]    8487: ??                                    POP ax
+[ 496]    8488: ??                                    mov dx, 0
+[ 497]    848B: ??                                    div bx
+[ 498]    848D: ??                                    PUSH dx
+[ 499]    848E: ??                                    dec scount
+[ 500]    8492: ??                                    mov ax, dx
+[ 501]        :                                       
+[ 502]    8494: ??                                    jmp display
+[ 503]        :                                       
+[ 504]    8497:                                       nPr:       ;calculate first number permutations second number
+[ 505]        :                                       ;nPr is pressed
+[ 506]    8497: ??                                    cmp scount, 1
+[ 507]    849C: ??                                    je displayn
+[ 508]    84A1: ??                                    mov flag, 0
+[ 509]    84A6: ??                                    dec scount
+[ 510]    84AA: ??                                    pop cx
+[ 511]    84AB: ??                                    pop ax
+[ 512]    84AC: ??                                    mov dx, 0
+[ 513]    84AF: ??                                    mov bx, ax
+[ 514]    84B1: ??                                    mov ax, 1
+[ 515]    84B4:                                       permloop:
+[ 516]    84B4: ??                                    mul bx
+[ 517]    84B6: ??                                    dec bx
+[ 518]    84B7: ??                                    cmp dx, 0
+[ 519]    84BA: ??                                    jne iterative_overflow
+[ 520]    84BF: ??                                    loop permloop
+[ 521]    84C1: ??                                    push ax
+[ 522]    84C2: ??                                    jmp display
+[ 523]        :                                       
+[ 524]    84C5:                                       nCr:       ;caclulate first number combination second number
+[ 525]        :                                       ;nCr is pressed
+[ 526]    84C5: ??                                    cmp scount, 1
+[ 527]    84CA: ??                                    je displayn
+[ 528]    84CF: ??                                    mov flag, 0
+[ 529]    84D4: ??                                    dec scount
+[ 530]    84D8: ??                                    pop cx
+[ 531]    84D9: ??                                    mov di, cx
+[ 532]    84DB: ??                                    pop ax
+[ 533]    84DC: ??                                    mov dx, 0
+[ 534]    84DF: ??                                    mov bx, ax
+[ 535]    84E1: ??                                    mov ax, 1
+[ 536]    84E4:                                       combloop:
+[ 537]    84E4: ??                                    mul bx
+[ 538]    84E6: ??                                    dec bx
+[ 539]    84E7: ??                                    cmp dx, 0
+[ 540]    84EA: ??                                    jne iterative_overflow
+[ 541]    84EC: ??                                    loop combloop
+[ 542]    84EE: ??                                    mov cx, di
+[ 543]    84F0:                                       combit:
+[ 544]    84F0: ??                                    div cx
+[ 545]    84F2: ??                                    mov dx, 0
+[ 546]    84F5: ??                                    loop combit
+[ 547]    84F7: ??                                    push ax
+[ 548]    84F8: ??                                    jmp display
+[ 549]        :                                       
+[ 550]    84FB:                                       factorial: ;calculate factorial for number
+[ 551]        :                                       ;factorial is pressed
+[ 552]    84FB: ??                                    mov flag,0
+[ 553]    8500: ??                                    pop cx
+[ 554]    8501: ??                                    mov ax, 1
+[ 555]    8504: ??                                    mov dx, 0
+[ 556]    8507:                                       factorialit:
+[ 557]    8507: ??                                    mul cx
+[ 558]    8509: ??                                    cmp dx, 0
+[ 559]    850C: ??                                    jne iterative_overflow
+[ 560]    850E: ??                                    loop factorialit
+[ 561]    8510: ??                                    push ax
+[ 562]    8511: ??                                    jmp display
+[ 563]        :                                       
+[ 564]    8514:                                       twoexp:    ;caclulate two to the power of number
+[ 565]        :                                       ;twoexp is pressed
+[ 566]    8514: ??                                    mov flag,0
+[ 567]    8519: ??                                    pop cx
+[ 568]    851A: ??                                    mov ax, 2
+[ 569]    851D: ??                                    dec cx
+[ 570]    851E: ??                                    mov bx, 2
+[ 571]    8521: ??                                    mov dx, 0
+[ 572]    8524:                                       twoexploop:
+[ 573]    8524: ??                                    mul bx
+[ 574]    8526: ??                                    cmp dx, 0
+[ 575]    8529: ??                                    jne iterative_overflow
+[ 576]    852B: ??                                    loop twoexploop
+[ 577]    852D: ??                                    push ax
+[ 578]    852E: ??                                    jmp display
+[ 579]        :                                       
+[ 580]    8530:                                       exp:       ;calculate first number to the power of second number
+[ 581]        :                                       ;exp is pressed
+[ 582]    8530: ??                                    cmp scount, 1
+[ 583]    8535: ??                                    je displayn
+[ 584]    8537: ??                                    mov flag,0
+[ 585]    853C: ??                                    dec scount
+[ 586]    8540: ??                                    pop cx
+[ 587]    8541: ??                                    pop ax
+[ 588]    8542: ??                                    dec cx
+[ 589]    8543: ??                                    mov bx, ax
+[ 590]    8545: ??                                    mov dx, 0
+[ 591]    8548:                                       exploop:
+[ 592]    8548: ??                                    mul bx
+[ 593]    854A: ??                                    cmp dx, 0
+[ 594]    854D: ??                                    jne iterative_overflow
+[ 595]    854F: ??                                    loop exploop
+[ 596]    8551: ??                                    push ax
+[ 597]    8552: ??                                    jmp display
+[ 598]        :                                       
+[ 599]    8554:                                       iterative_overflow:
+[ 600]    8554: ??                                    stc
+[ 601]    8555: ??                                    jmp display
+[ 602]        :                                       
+[ 603]    8557:                                       back:      ;erase the latest digit pressed
+[ 604]        :                                       ;back is pressed
+[ 605]    8557: ??                                    POP ax
+[ 606]    8558: ??                                    mov dx, 0
+[ 607]    855B: ??                                    mov bx, 10
+[ 608]    855E: ??                                    div bx
+[ 609]    8560: ??                                    PUSH ax
+[ 610]    8561: ??                                    jmp display
+[ 611]        :                                       
+[ 612]    8563:                                       popmem:    ;erase the latest entry in the stack
+[ 613]        :                                       ;pop is pressed
+[ 614]    8563: ??                                    cmp scount,0
+[ 615]    8568: ??                                    je skippop
+[ 616]    856A: ??                                    POP ax
+[ 617]    856B: ??                                    dec scount
+[ 618]    856F: ??                                    pop ax
+[ 619]    8570: ??                                    push ax
+[ 620]    8571:                                       skippop:
+[ 621]    8571: ??                                    mov flag,0
+[ 622]    8576: ??                                    jmp display
+[ 623]        :                                       
+[ 624]    8578:                                       clear:    ;clear the stack
+[ 625]        :                                       ; clear is pressed
+[ 626]    8578: ??                                    cmp scount,0
+[ 627]    857D: ??                                    je skipc
+[ 628]    857F: ??                                    POP ax
+[ 629]    8580: ??                                    dec scount
+[ 630]    8584: ??                                    jmp clear
+[ 631]    8586:                                       skipc:
+[ 632]    8586: ??                                    mov ax,0
+[ 633]    8589: ??                                    jmp display
+[ 634]        :                                       
+[ 635]    858B:                                       enter:    ;store number in stack
+[ 636]        :                                       ;enter is pressed
+[ 637]    858B: ??                                    mov ax, 0
+[ 638]    858E: ??                                    mov flag, 0
+[ 639]    8593: ??                                    jmp display
+[ 640]        :                                       
+[ 641]        :                                       ; 3) Display
+[ 642]        :                                       ; The display is updated after every arithmeric operation is performed,
+[ 643]        :                                       ; It's mainly a loop that finds the remainder of the number after dividing by
+[ 644]        :                                       ; 10, then divide by 10, then loop for 5 times, once done, we return to the
+[ 645]        :                                       ; start point of the program. The item in ax will be the one displayed
+[ 646]        :                                       
+[ 647]        :                                       ;This part is used when an operator is used when not enough inputs are present
+[ 648]        :                                       ;It loads ax with the last item in the stack.
+[ 649]        :                                       
+[ 650]    8595:                                       displayn:
+[ 651]    8595: ??                                    pop ax
+[ 652]    8596: ??                                    push ax
+[ 653]        :                                       
+[ 654]        :                                       ;Set the output port, output 0 to the overflow LED, if the carry flag = 1 (Used by
+[ 655]        :                                       ;us to indicate an overflow) the overflow LED gets set, we clear the carry flag,
+[ 656]        :                                       ;and we set 0 to the output, we also clear the last item in the stack
+[ 657]        :                                       
+[ 658]    8597:                                       display:
+[ 659]    8597: ??                                    mov dx, 020h
+[ 660]    859A: ??                                    push ax
+[ 661]    859B: ??                                    mov al, 000h
+[ 662]    859D: ??                                    out 030h, al
+[ 663]    859F: ??                                    pop ax
+[ 664]    85A0: ??                                    jnc displayloop
+[ 665]    85A2: ??                                    pop ax
+[ 666]    85A3: ??                                    mov ax, 0
+[ 667]    85A6: ??                                    push ax
+[ 668]    85A7: ??                                    clc
+[ 669]    85A8: ??                                    mov al, 0FFh
+[ 670]    85AA: ??                                    out 030h, al
+[ 671]    85AC: ??                                    mov al, 0
+[ 672]    85AE: ??                                    pop ax
+[ 673]    85AF: ??                                    push ax
+[ 674]        :                                       
+[ 675]        :                                       ;Main part of the display loop, we put ax in cx for safekeeping, dx is used to store
+[ 676]        :                                       ;the remainder and the output port address, so we save it's value (the port address)
+[ 677]        :                                       ;in si, then divide ax by 10, store the remainder (what is to be displayed) in di
+[ 678]        :                                       ;and return the port address to dx, we also return ax to it's original value
+[ 679]        :                                       
+[ 680]    85B0:                                       displayloop:
+[ 681]    85B0: ??                                    mov cx, ax
+[ 682]    85B2: ??                                    mov si, dx
+[ 683]    85B4: ??                                    mov bx, 10
+[ 684]    85B7: ??                                    mov dx, 0
+[ 685]    85BA: ??                                    div bx
+[ 686]    85BC: ??                                    mov di, dx
+[ 687]    85BE: ??                                    mov ax, cx
+[ 688]    85C0: ??                                    mov dx, si
+[ 689]        :                                       
+[ 690]        :                                       ;Chech the remainder, save the value of al to bl, output al to dx, then
+[ 691]        :                                       ;return the original value of al, once the digit is found, we jump to the
+[ 692]        :                                       ;continuedisplay part
+[ 693]        :                                       
+[ 694]    85C2:                                       s0:
+[ 695]    85C2: ??                                    cmp di, 0
+[ 696]    85C5: ??                                    jne s1
+[ 697]    85C7: ??                                    mov bl, al
+[ 698]    85C9: ??                                    mov al, 0111111b
+[ 699]    85CB: ??                                    out dx, al
+[ 700]    85CC: ??                                    mov al, bl
+[ 701]    85CE: ??                                    jmp continuedisplay
+[ 702]        :                                       
+[ 703]    85D0:                                       s1:
+[ 704]    85D0: ??                                    cmp di, 1
+[ 705]    85D3: ??                                    jne s2
+[ 706]    85D5: ??                                    mov bl, al
+[ 707]    85D7: ??                                    mov al, 0000110b
+[ 708]    85D9: ??                                    out dx, al
+[ 709]    85DA: ??                                    mov al, bl
+[ 710]    85DC: ??                                    jmp continuedisplay
+[ 711]        :                                       
+[ 712]    85DE:                                       s2:
+[ 713]    85DE: ??                                    cmp di, 2
+[ 714]    85E1: ??                                    jne s3
+[ 715]    85E3: ??                                    mov bl, al
+[ 716]    85E5: ??                                    mov al, 1011011b
+[ 717]    85E7: ??                                    out dx, al
+[ 718]    85E8: ??                                    mov al, bl
+[ 719]    85EA: ??                                    jmp continuedisplay
+[ 720]        :                                       
+[ 721]    85EC:                                       s3:
+[ 722]    85EC: ??                                    cmp di, 3
+[ 723]    85EF: ??                                    jne s4
+[ 724]    85F1: ??                                    mov bl, al
+[ 725]    85F3: ??                                    mov al, 1001111b
+[ 726]    85F5: ??                                    out dx, al
+[ 727]    85F6: ??                                    mov al, bl
+[ 728]    85F8: ??                                    jmp continuedisplay
+[ 729]        :                                       
+[ 730]    85FA:                                       s4:
+[ 731]    85FA: ??                                    cmp di, 4
+[ 732]    85FD: ??                                    jne s5
+[ 733]    85FF: ??                                    mov bl, al
+[ 734]    8601: ??                                    mov al, 1100110b
+[ 735]    8603: ??                                    out dx, al
+[ 736]    8604: ??                                    mov al, bl
+[ 737]    8606: ??                                    jmp continuedisplay
+[ 738]        :                                       
+[ 739]    8608:                                       s5:
+[ 740]    8608: ??                                    cmp di, 5
+[ 741]    860B: ??                                    jne s6
+[ 742]    860D: ??                                    mov bl, al
+[ 743]    860F: ??                                    mov al, 1101101b
+[ 744]    8611: ??                                    out dx, al
+[ 745]    8612: ??                                    mov al, bl
+[ 746]    8614: ??                                    jmp continuedisplay
+[ 747]        :                                       
+[ 748]    8616:                                       s6:
+[ 749]    8616: ??                                    cmp di, 6
+[ 750]    8619: ??                                    jne s7
+[ 751]    861B: ??                                    mov bl, al
+[ 752]    861D: ??                                    mov al, 1111101b
+[ 753]    861F: ??                                    out dx, al
+[ 754]    8620: ??                                    mov al, bl
+[ 755]    8622: ??                                    jmp continuedisplay
+[ 756]        :                                       
+[ 757]    8624:                                       s7:
+[ 758]    8624: ??                                    cmp di, 7
+[ 759]    8627: ??                                    jne s8
+[ 760]    8629: ??                                    mov bl, al
+[ 761]    862B: ??                                    mov al, 0000111b
+[ 762]    862D: ??                                    out dx, al
+[ 763]    862E: ??                                    mov al, bl
+[ 764]    8630: ??                                    jmp continuedisplay
+[ 765]        :                                       
+[ 766]    8632:                                       s8:
+[ 767]    8632: ??                                    cmp di, 8
+[ 768]    8635: ??                                    jne s9
+[ 769]    8637: ??                                    mov bl, al
+[ 770]    8639: ??                                    mov al, 1111111b
+[ 771]    863B: ??                                    out dx, al
+[ 772]    863C: ??                                    mov al, bl
+[ 773]    863E: ??                                    jmp continuedisplay
+[ 774]        :                                       
+[ 775]    8640:                                       s9:
+[ 776]    8640: ??                                    mov bl, al
+[ 777]    8642: ??                                    mov al, 1101111b
+[ 778]    8644: ??                                    out dx, al
+[ 779]    8645: ??                                    mov al, bl
+[ 780]    8647: ??                                    jmp continuedisplay
+[ 781]        :                                       
+[ 782]        :                                       ;See if we reached the last output, if so, redo the code, otherwise, we add 2
+[ 783]        :                                       ;to the output port, divide the number to be displayed by 10, and redo the display
+[ 784]        :                                       ;loop
+[ 785]        :                                       
+[ 786]    8649:                                       continuedisplay:
+[ 787]    8649: ??                                    mov di, dx
+[ 788]    864B: ??                                    cmp di, 027h
+[ 789]    864E: ??                                    jns redo
+[ 790]    8653: ??                                    add di, 2
+[ 791]    8656: ??                                    mov bx, 0Ah
+[ 792]    8659: ??                                    mov dx, 0
+[ 793]    865C: ??                                    div bx
+[ 794]    865E: ??                                    mov dx, di
+[ 795]    8660: ??                                    jmp displayloop
+[ 796]        :                                       
+[ 797]    8663: ??                                    jmp redo
+[ 798]        :                                       
+[ 799]        :                                       
+ 
+===================================================================================================
+ 
+
+
+
+
+===================================================================================================
