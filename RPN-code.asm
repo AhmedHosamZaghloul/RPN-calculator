@@ -784,14 +784,14 @@ jmp continuedisplay
 ;loop
 
 continuedisplay:
-mov di, dx
 cmp dx, 027h 
 jns redo
-add di, 2
+add dx, 2
+push dx
 mov bx, 0Ah
 mov dx, 0
 div bx   
-mov dx, di
+pop dx
 jmp displayloop 
 
 jmp redo
