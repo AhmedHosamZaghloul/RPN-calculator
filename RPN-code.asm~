@@ -785,7 +785,7 @@ jmp continuedisplay
 
 continuedisplay:
 mov di, dx
-cmp dx, 027h 
+cmp di, 027h 
 jns redo
 add di, 2
 mov bx, 0Ah
